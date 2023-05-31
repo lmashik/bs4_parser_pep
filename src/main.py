@@ -150,7 +150,7 @@ def pep(session):
 
     for k, v in status_dict.items():
         results.append((k, v))
-    results.append(('Total', total))
+    results.append(('Total (including unknown)', total))
 
     info = 'Несовпадающие статусы:\n'
     if mismatched_statuses:
