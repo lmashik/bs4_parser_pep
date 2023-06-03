@@ -10,6 +10,7 @@ from configs import configure_argument_parser, configure_logging
 from constants import BASE_DIR, EXPECTED_STATUS, MAIN_DOC_URL, MAIN_PEP_URL
 from outputs import control_output
 from utils import find_tag, get_response
+from collections import defaultdict
 
 
 def whats_new(session):
@@ -61,10 +62,7 @@ def latest_versions(session):
     for a_tag in a_tags:
         link = a_tag['href']
         text_match = re.search(pattern, a_tag.text)
-        if text_match is not None:
-            version, status = text_match.groups()
-        else:
-            version, status = a_tag.text, ''
+        version, status = text_match.groups() if text_match else a_tag.text, ''
         results.append(
             (link, version, status)
         )
@@ -116,7 +114,7 @@ def pep(session):
 
     mismatched_statuses = []
     results = [('Статус', 'Количество')]
-    status_dict = {}
+    status_dict = defaultdict(int)
     total = 0
 
     for tr_tag in tqdm(tr_tags):
@@ -136,10 +134,7 @@ def pep(session):
         )
         dd_next_tag = dt_tag_status.find_next_sibling()
         status = dd_next_tag.abbr.text
-        if status in status_dict:
-            status_dict[status] += 1
-        else:
-            status_dict[status] = 1
+        status_dict[status] += 1
 
         if status not in EXPECTED_STATUS[preview_status]:
             mismatched_statuses.append(
@@ -150,7 +145,7 @@ def pep(session):
 
     for k, v in status_dict.items():
         results.append((k, v))
-    results.append(('Total (including unknown)', total))
+    results.append(('Всего (включая неизвестные)', total))
 
     info = 'Несовпадающие статусы:\n'
     if mismatched_statuses:
