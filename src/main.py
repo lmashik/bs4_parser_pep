@@ -9,9 +9,9 @@ from tqdm import tqdm
 
 from configs import configure_argument_parser, configure_logging
 from constants import BASE_DIR, EXPECTED_STATUS, MAIN_DOC_URL, MAIN_PEP_URL
+from exceptions import PageLoadException
 from outputs import control_output
 from utils import find_tag, get_response
-from exceptions import PageLoadException
 
 
 def whats_new(session):
