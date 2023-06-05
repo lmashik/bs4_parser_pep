@@ -1,5 +1,6 @@
 import logging
 import re
+from collections import defaultdict
 from urllib.parse import urljoin
 
 import requests_cache
@@ -10,14 +11,12 @@ from configs import configure_argument_parser, configure_logging
 from constants import BASE_DIR, EXPECTED_STATUS, MAIN_DOC_URL, MAIN_PEP_URL
 from outputs import control_output
 from utils import find_tag, get_response
-from collections import defaultdict
+from exceptions import PageLoadException
 
 
 def whats_new(session):
     whats_new_url = urljoin(MAIN_DOC_URL, 'whatsnew/')
     response = get_response(session, whats_new_url)
-    if response is None:
-        return
 
     soup = BeautifulSoup(response.text, features='lxml')
     main_div = find_tag(soup, 'section', attrs={'id': 'what-s-new-in-python'})
@@ -30,8 +29,9 @@ def whats_new(session):
         version_a_tag = find_tag(section, 'a')
         href = version_a_tag['href']
         version_link = urljoin(whats_new_url, href)
-        response = get_response(session, version_link)
-        if response is None:
+        try:
+            response = get_response(session, version_link)
+        except PageLoadException:
             continue
         soup = BeautifulSoup(response.text, features='lxml')
         h1 = find_tag(soup, 'h1')
@@ -44,8 +44,6 @@ def whats_new(session):
 
 def latest_versions(session):
     response = get_response(session, MAIN_DOC_URL)
-    if response is None:
-        return
 
     soup = BeautifulSoup(response.text, features='lxml')
     sidebar = find_tag(soup, 'div', {'class': 'sphinxsidebarwrapper'})
@@ -73,8 +71,6 @@ def latest_versions(session):
 def download(session):
     downloads_url = urljoin(MAIN_DOC_URL, 'download.html')
     response = get_response(session, downloads_url)
-    if response is None:
-        return
 
     soup = BeautifulSoup(response.text, features='lxml')
 
@@ -104,8 +100,6 @@ def download(session):
 
 def pep(session):
     response = get_response(session, MAIN_PEP_URL)
-    if response is None:
-        return
 
     soup = BeautifulSoup(response.text, features='lxml')
     pep_numerical_index = find_tag(soup, 'section', {'id': 'numerical-index'})
@@ -121,8 +115,9 @@ def pep(session):
         total += 1
         preview_status = tr_tag.abbr.text[1:]
         pep_link = urljoin(MAIN_PEP_URL, find_tag(tr_tag, 'a')['href'])
-        response = get_response(session, pep_link)
-        if response is None:
+        try:
+            response = get_response(session, pep_link)
+        except PageLoadException:
             continue
         soup = BeautifulSoup(response.text, features='lxml')
         dl_tag = find_tag(soup, 'dl', {'class': 'rfc2822 field-list simple'})
@@ -176,7 +171,7 @@ def main():
     parser_mode = args.mode
     results = MODE_TO_FUNCTION[parser_mode](session)
 
-    if results is not None:
+    if results:
         control_output(results, args)
 
     logging.info('Парсер завершил работу.')

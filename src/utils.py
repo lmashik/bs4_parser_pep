@@ -2,7 +2,7 @@ import logging
 
 from requests import RequestException
 
-from exceptions import ParserFindTagException
+from exceptions import ParserFindTagException, PageLoadException
 
 
 def get_response(session, url):
@@ -15,6 +15,7 @@ def get_response(session, url):
             f'Возникла ошибка при загрузке страницы {url}',
             stack_info=True
         )
+        raise PageLoadException(f'Возникла ошибка при загрузке страницы {url}')
 
 
 def find_tag(soup, tag, attrs=None, string=None):
