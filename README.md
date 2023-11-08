@@ -18,20 +18,16 @@
  - Beautiful Soup (библиотека для парсинга HTML и XML документов)
  
 ----------------------------------------
-## Установка
+## Установка и запуск
 
-1. Клонируйте репозиторий и перейдите в директорию src
+1. Клонируйте репозиторий
 ```bash
 git clone https://github.com/lmashik/bs4_parser_pep.git
 ```
 
-```bash
-cd src
-```
-
 2. Создайте и активируйте виртуальное окружение
 ```bash
-python3 -m venv env
+python3.7 -m venv env
 ```
 
 * Если у вас Linux/macOS
@@ -56,7 +52,12 @@ python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-5. Ознакомьтесь с информацией о парсере и доступных командах
+5. Перейдите в директорию с парсером
+```bash
+cd src
+```
+
+6. Ознакомьтесь с информацией о парсере и доступных командах
 ```bash
 python main.py -h
 ```
